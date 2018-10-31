@@ -136,4 +136,3 @@ def exit_function(puzzle, puzzleSize):
         str += '\n'
     print(str)
     exit();
-
