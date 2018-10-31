@@ -1,6 +1,6 @@
 import numpy as np
 
-def solve_puzzle(puzzle, puzzleSize, dict, hor_word_starting, vert_word_starting, hor_length, vert_length, number_of_fields, hor_word):
+def solve_puzzle(puzzle, puzzleSize, dict, hor_word_starting, vert_word_starting, hor_length, vert_length, number_of_fields, hor_word, forbidden_words):
     while hor_word < len(hor_word_starting):
         tempdict = (x for x in dict if len(x) == hor_length[hor_word])
 
@@ -8,10 +8,10 @@ def solve_puzzle(puzzle, puzzleSize, dict, hor_word_starting, vert_word_starting
             puzzle2 = np.copy(puzzle)
             puzzle2 = insert_word(puzzle2, word, hor_word_starting[hor_word], len(word), 0)
             number_of_fields -= hor_length[hor_word]
-            if(check_if_valid(puzzle2, vert_word_starting, vert_length, number_of_fields, dict)):
+            if(check_if_valid(puzzle2, vert_word_starting, vert_length, number_of_fields, dict, forbidden_words)):
                 exit_function(puzzle2, puzzleSize)
-            if(check_if_partial_valid(puzzle2, vert_word_starting, vert_length, dict) or hor_word == 0):
-                solve_puzzle(puzzle2, puzzleSize, dict, hor_word_starting, vert_word_starting, hor_length, vert_length, number_of_fields, hor_word+1)
+            if(check_if_partial_valid(puzzle2, vert_word_starting, vert_length, dict, forbidden_words) or hor_word == 0):
+                solve_puzzle(puzzle2, puzzleSize, dict, hor_word_starting, vert_word_starting, hor_length, vert_length, number_of_fields, hor_word+1, forbidden_words)
 
 
             number_of_fields += hor_length[hor_word]
@@ -27,20 +27,20 @@ def solve_puzzle(puzzle, puzzleSize, dict, hor_word_starting, vert_word_starting
 
 
 
-def check_if_valid(puzzle, vert_word_starting, vert_length, number_of_fields, dict):
+def check_if_valid(puzzle, vert_word_starting, vert_length, number_of_fields, dict, forbidden_words):
     if number_of_fields != 0:
         return False
-    elif check_if_partial_valid(puzzle,vert_word_starting, vert_length, dict):
+    elif check_if_partial_valid(puzzle,vert_word_starting, vert_length, dict, forbidden_words):
         return True
     return False
 
 
-def check_if_partial_valid(puzzle, vert_word_starting, vert_length, dict):
+def check_if_partial_valid(puzzle, vert_word_starting, vert_length, dict, forbidden_words):
     word_num = 0
     for vert_word in vert_word_starting:
         x,y = vert_word
         if puzzle[x,y] != "_":
-            if(check_vertical(puzzle,x,y,vert_length[word_num],dict) == False):
+            if(check_vertical(puzzle,x,y,vert_length[word_num],dict, forbidden_words) == False):
                 return False
         word_num += 1
     return True
@@ -113,18 +113,25 @@ def calculate_length_vertically(puzzle, row, col, puzzleSize):
         else:
             length += 1
     return length
-def check_vertical(puzzle, x,y, length, dict):
+def check_vertical(puzzle, x,y, length, dict, forbidden_words):
     str = ""
+
+
     tempdict = (x for x in dict if len(x) == length)
     for i in range(x, x+length):
         if puzzle[i,y] == "#" or puzzle[i,y] == "_":
             break
         str += puzzle[i,y]
+    if (not forbidden_words):
+        tempforbidden_words = (x for x in forbidden_words if len(x) == len(str))
+        for word in tempforbidden_words:
+            if str == word:
+                return False
 
     for word in tempdict:
         if word.startswith(str):
             return True
-
+    forbidden_words.append(str)
     return False
 def exit_function(puzzle, puzzleSize):
     str = ""

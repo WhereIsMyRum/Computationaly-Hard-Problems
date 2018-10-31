@@ -14,7 +14,6 @@ inputs = [x.strip() for x in inputs if x]
 inputs.append(" ")
 '''
 
-
 #reading input from stdin (for CodeJudge)
 
 for line in sys.stdin:
@@ -95,9 +94,10 @@ dict2 = np.empty([puzzleSize,len(dict)])
 puzzle2 = [x for x in puzzle if x != ";"]
 puzzleMat = np.asmatrix(puzzle2).reshape((puzzleSize,puzzleSize))
 hor_word_starting, vert_word_starting, hor_length, vert_length, number_of_fields = analyze_crossword(puzzleMat, puzzleSize)
+forbidden_words = []
 
 if( hor_word_starting != "NO"):
-    print(solve_puzzle(puzzleMat,puzzleSize,dict, hor_word_starting, vert_word_starting, hor_length, vert_length, number_of_fields, 0))
+    print(solve_puzzle(puzzleMat,puzzleSize,dict, hor_word_starting, vert_word_starting, hor_length, vert_length, number_of_fields, 0, forbidden_words))
 
 else:
     str = ""
