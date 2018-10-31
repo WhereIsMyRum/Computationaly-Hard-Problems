@@ -1,21 +1,25 @@
 import sys
-import numpy as np
-import random
 
+import numpy as np
+from puzzle_solver import *
 
 
 inputs = []
 
-#var = input()
-#while(var != ""):
-#    inputs.append(var)
-#    var = input()
+#reading input from a file
+'''
 with open("test01.CPC") as f:
     inputs = f.readlines()
 inputs = [x.strip() for x in inputs if x]
-#for line in sys.stdin:
-#    if str(line) != "":
-#        inputs.append(line)
+inputs.append(" ")
+'''
+
+
+#reading input from stdin (for CodeJudge)
+
+for line in sys.stdin:
+    if str(line) != "":
+        inputs.append(line)
 
 inputs.append(" ")
 
@@ -74,18 +78,36 @@ while inputs[i] != " ":
     if inputs[i] == '\n' or inputs[i] == "#" or inputs[i] == "_" or inputs[i] == ";":
         sys.stdout.write("NO")
         exit()
-    dict.append(inputs[i])
+    dict.append(inputs[i].rstrip())
     i = i + 1
 
 if len(dict) != dictLength:
     sys.stdout.write("NO")
     exit()
 
-sys.stdout.write("YES")
+#sys.stdout.write("YES")
 
-puzzle = []
-for i in range(2, puzzleSize+2):
-    puzzle.append(inputs[i])
+dict.sort(key = lambda s: len(s))
+dict2 = np.empty([puzzleSize,len(dict)])
 
-print(sorted(dict,key=len))
+
+#reshape the 1d array into 2d matrix and remove the ';'
+puzzle2 = [x for x in puzzle if x != ";"]
+puzzleMat = np.asmatrix(puzzle2).reshape((puzzleSize,puzzleSize))
+hor_word_starting, vert_word_starting, hor_length, vert_length, number_of_fields = analyze_crossword(puzzleMat, puzzleSize)
+
+if( hor_word_starting != "NO"):
+    print(solve_puzzle(puzzleMat,puzzleSize,dict, hor_word_starting, vert_word_starting, hor_length, vert_length, number_of_fields, 0))
+
+else:
+    str = ""
+    for i in range(0, puzzleSize):
+        for j in range(0, puzzleSize):
+            str += puzzleMat[i, j]
+            if (j != puzzleSize - 1):
+                str += ";"
+        str += '\n'
+    print(str)
+
+
 
